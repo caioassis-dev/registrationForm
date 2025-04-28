@@ -1,41 +1,112 @@
-class ValidaFormulario {
+class FormValidator {
   constructor() {
-    this.formulario = document.querySelector(".formulario");
-    this.eventos();
+    this.form = document.querySelector(".formulario");
+    this.addEvents();
   }
 
-  eventos() {
-    this.formulario.addEventListener("submit", (e) => {
+  addEvents() {
+    this.form.addEventListener("submit", (e) => {
       this.handleSubmit(e);
     });
   }
 
   handleSubmit(e) {
     e.preventDefault();
-    const camposValidos = this.camposSaoValidos();
+    const fieldsValid = this.areFieldsValid();
+    const passwordsValid = this.arePasswordsValid();
+
+    if (fieldsValid && passwordsValid) {
+      window.location.href = "submitAvailable.html";
+    }
   }
 
-  camposSaoValidos() {
+  arePasswordsValid() {
     let valid = true;
 
-    for (let errorText of this.formulario.querySelectorAll(".error-text")) {
+    const password = this.form.querySelector(".senha");
+    const repeatPassword = this.form.querySelector(".repetir-senha");
+
+    if (password.value !== repeatPassword.value) {
+      valid = false;
+      this.createError(
+        password,
+        "Campos senha e repetir senha precisam ser iguais."
+      );
+      this.createError(
+        repeatPassword,
+        "Campos senha e repetir senha precisam ser iguais."
+      );
+    }
+
+    if (password.value.length < 6 || password.value.length > 12) {
+      valid = false;
+      this.createError(password, "Senha precisa estar entre 6 e 12 caracteres");
+    }
+
+    return valid;
+  }
+
+  areFieldsValid() {
+    let valid = true;
+
+    for (let errorText of this.form.querySelectorAll(".error-text")) {
       errorText.remove();
     }
 
-    for (let campo of this.formulario.querySelectorAll(".validar")) {
-      const label = campo.previousElementSibling.innerHTML;
-      if (!campo.value) {
-        this.criaErro(campo, `Campo "${label}" não pode estar vazio.`);
+    for (let field of this.form.querySelectorAll(".validar")) {
+      const label = field.previousElementSibling.innerHTML;
+      if (!field.value) {
+        this.createError(field, `Campo "${label}" não pode estar vazio.`);
         valid = false;
       }
+
+      if (field.classList.contains(".cpf")) {
+        if (!this.validateCPF(field)) valid = false;
+      }
+
+      if (field.classList.contains(".usuario")) {
+        if (!this.validateUser(field)) valid = false;
+      }
     }
+    return valid;
   }
-  criaErro(campo, msg) {
+
+  validateUser(field) {
+    const user = field.value;
+    let valid = true;
+
+    if (user.length < 3 || user.length > 12) {
+      this.createError(field, "Usuário precisa ter entre 3 e 12 caracteres.");
+      valid = false;
+    }
+
+    if (!user.match(/[a-zA-Z0-9]+$/g)) {
+      this.createError(
+        field,
+        "Nome de usuário precisa conter apenas letras e/ou números."
+      );
+      valid = false;
+    }
+
+    return valid;
+  }
+
+  validateCPF(field) {
+    const cpf = new CPFValidator(field.value);
+
+    if (!cpf.validate()) {
+      this.createError(field, "CPF inválido");
+      return false;
+    }
+    return true;
+  }
+
+  createError(field, msg) {
     const div = document.createElement("div");
     div.innerHTML = msg;
     div.classList.add("error-text");
-    campo.insertAdjacentElement("afterend", div);
+    field.insertAdjacentElement("afterend", div);
   }
 }
 
-const valida = new ValidaFormulario();
+const validator = new FormValidator();
