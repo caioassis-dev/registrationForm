@@ -29,4 +29,4 @@ Para garantir essas validações, foram criadas funções específicas para cada
 
 ## 📸 Telas da Aplicação
 
-![Image](https://github.com/user-attachments/assets/97c00f89-495e-4831-8f1b-cd3b555aa816)
+[![Image](https://github.com/user-attachments/assets/97c00f89-495e-4831-8f1b-cd3b555aa816)](https://caioassis-dev.github.io/registrationForm/)
